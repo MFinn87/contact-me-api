@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "personal website server",
+  "main": "app.js",
+  "scripts": {
+    "test": "",
+    "serve:dev": "ENVIRONMENT=dev node src/app.js",
+    "serve:test": "ENVIRONMENT=test node src/app.js",
+    "serve:prod": "ENVIRONMENT=prod node src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "email-templates": "^7.0.4",
+    "express": "^4.17.1",
+    "nodemailer": "^6.4.5",
+    "nodemon": "^2.0.2",
+    "pug": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0"
+  }
+}
