@@ -35,6 +35,21 @@ func Register(infrastructure *Infra.Infrastructure, slackClient Slack.Client, co
 	RestApi.UseRoute(
 		api,
 		huma.Operation{
+			Method:      "GET",
+			Path:        "/health-check",
+			Description: "Health Check",
+			Tags:        []string{"Health Check"},
+		},
+		func(ctx context.Context, request *RestApi.RequestBody[any]) (*RestApi.NonNullableResponse[string], error) {
+			response := RestApi.NonNullableJsonResponse("Ok")
+
+			return &response, nil
+		},
+	)
+
+	RestApi.UseRoute(
+		api,
+		huma.Operation{
 			Method:      "POST",
 			Path:        "/contact-requests",
 			Description: "Send a message",
@@ -55,6 +70,7 @@ func Register(infrastructure *Infra.Infrastructure, slackClient Slack.Client, co
 				fmt.Println(err.Error())
 			}
 
+			// Hide the error from the client
 			response := RestApi.NonNullableJsonResponse("Ok")
 
 			return &response, err
