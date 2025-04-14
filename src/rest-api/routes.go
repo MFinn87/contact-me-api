@@ -13,10 +13,10 @@ import (
 )
 
 type ContactRequest struct {
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phoneNumber"`
-	Message     string `json:"message"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Phone   string `json:"phone"`
+	Message string `json:"message"`
 }
 
 func PrepareForSlack(contactRequest ContactRequest) string {
@@ -26,7 +26,7 @@ func PrepareForSlack(contactRequest ContactRequest) string {
 - Email: %s
 - Phone Number: %s
 - Message: %s
-	`, contactRequest.Name, contactRequest.Email, contactRequest.PhoneNumber, contactRequest.Message)
+	`, contactRequest.Name, contactRequest.Email, contactRequest.Phone, contactRequest.Message)
 }
 
 func Register(infrastructure *Infra.Infrastructure, slackClient Slack.Client, config config.Config) {
@@ -67,10 +67,15 @@ func Register(infrastructure *Infra.Infrastructure, slackClient Slack.Client, co
 			err := slackClient.SendMessage(channelId, PrepareForSlack(request.Body), true)
 
 			if err != nil {
+				fmt.Println("Error:")
+				fmt.Println(request.Body.Email)
+				fmt.Println(request.Body.Name)
+				fmt.Println(request.Body.Phone)
+				fmt.Println(request.Body.Message)
 				fmt.Println(err.Error())
 			}
 
-			// Hide the error from the client
+			// Hide any potential error from the client
 			response := RestApi.NonNullableJsonResponse("Ok")
 
 			return &response, err
