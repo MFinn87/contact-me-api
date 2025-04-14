@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  contact-me-api:
+    platform: linux/amd64
+    container_name: contact-me-api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - ${API_PORT}:${API_PORT}
