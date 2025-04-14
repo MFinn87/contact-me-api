@@ -33,7 +33,7 @@ var AppConfig = Config{
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"*"},
 		AllowCredentials: true,
-		AllowOrigins:     []string{"http://127.0.0.1:3000", "http://localhost:3000", "https://finnyg.com"},
+		AllowOrigins:     []string{"http://127.0.0.1:3000", "http://localhost:3000", "https://finnyg.com", "https://www.finnyg.com"},
 	},
 	Slack: SlackConfig{
 		// Requires the following scopes: channels:join, channels:read, chat:write, groups:write
