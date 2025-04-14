@@ -2,4 +2,4 @@
 
 echo "Starting up..."
 
-go run ./src/cmd/server/main.go
+./main
