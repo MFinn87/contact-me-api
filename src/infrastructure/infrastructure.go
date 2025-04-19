@@ -2,20 +2,21 @@ package infrastructure
 
 import (
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humagin"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	Huma "github.com/danielgtaylor/huma/v2"
+	Humagin "github.com/danielgtaylor/huma/v2/adapters/humagin"
+	Cors "github.com/gin-contrib/cors"
+	Gin "github.com/gin-gonic/gin"
 
-	"contact-me/src/config"
-	"contact-me/src/utils"
+	Config "contact-me/src/config"
+	Utils "contact-me/src/utils"
 )
 
 type Server struct {
-	Router *gin.Engine
-	Api    huma.API
+	Router *Gin.Engine
+	Api    Huma.API
 }
 
 type Infrastructure struct {
@@ -26,32 +27,40 @@ func (self *Infrastructure) Close() {
 	fmt.Println("Shutting down server...")
 }
 
-func UseInfrastructure(config config.Config) (*Infrastructure, error) {
-	ginRouter := gin.Default()
-	ginRouter.Use(gin.Recovery())
-	ginRouter.Use(cors.New(cors.Config{
-		AllowMethods:     config.CORS.AllowMethods,
-		AllowHeaders:     config.CORS.AllowHeaders,
-		ExposeHeaders:    config.CORS.ExposeHeaders,
-		AllowCredentials: config.CORS.AllowCredentials,
-		AllowOriginFunc: func(requestOrigin string) bool {
-			maybeValidOriginMatch := utils.Find[string](config.CORS.AllowOrigins, func(allowedOrigin string, index int32) bool {
-				return allowedOrigin == requestOrigin
-			})
+var shouldServeDocs = (os.Getenv("ENV") == "local")
 
-			if maybeValidOriginMatch != nil {
-				return true
-			} else {
-				return false
-			}
-		},
-		MaxAge: 12 * time.Hour,
-	}))
+var corsMiddleware = Cors.New(Cors.Config{
+	AllowMethods:     Config.AppConfig.CORS.AllowMethods,
+	AllowHeaders:     Config.AppConfig.CORS.AllowHeaders,
+	ExposeHeaders:    Config.AppConfig.CORS.ExposeHeaders,
+	AllowCredentials: Config.AppConfig.CORS.AllowCredentials,
+	AllowOriginFunc: func(requestOrigin string) bool {
+		maybeValidOriginMatch := Utils.Find[string](Config.AppConfig.CORS.AllowOrigins, func(allowedOrigin string, index int32) bool {
+			return allowedOrigin == requestOrigin
+		})
 
-	openApiConfig := huma.DefaultConfig(config.API.Name, config.API.Version)
-	openApiConfig.Servers = []*huma.Server{{URL: "http://127.0.0.1:" + config.API.Port}}
+		if maybeValidOriginMatch != nil {
+			return true
+		} else {
+			return false
+		}
+	},
+	MaxAge: 12 * time.Hour,
+})
 
-	api := humagin.New(ginRouter, huma.DefaultConfig("Contact Me API", "1.0.0"))
+func UseInfrastructure(config Config.Config) (*Infrastructure, error) {
+	ginRouter := Gin.Default()
+	ginRouter.Use(Gin.Recovery())
+	ginRouter.Use(corsMiddleware)
+
+	openApiConfig := Huma.DefaultConfig(config.API.Name, config.API.Version)
+	openApiConfig.Servers = []*Huma.Server{{URL: "http://127.0.0.1:" + config.API.Port}}
+
+	if !shouldServeDocs {
+		openApiConfig.DocsPath = ""
+	}
+
+	api := Humagin.New(ginRouter, openApiConfig)
 
 	server := Server{
 		Router: ginRouter,
